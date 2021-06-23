@@ -3,6 +3,8 @@
 #include "ObjectManager.h"
 #include "PathManager.h"
 
+// CHW
+
 int main() {
 	PlaceManager placeManager;
 	ObjectManager objectManager(placeManager);
@@ -47,6 +49,8 @@ int main() {
 	objectManager.addPerson("bob", 1, NY->getId());
 	std::cout << "NY: " << NY->getPeople()[0]->getName() << std::endl;
 	std::cout << std::endl;
+
+
 
 	Person &bob = *objectManager.getPersonList()[0];
 
