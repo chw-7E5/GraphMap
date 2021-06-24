@@ -3,9 +3,30 @@
 #include "ObjectManager.h"
 #include "PathManager.h"
 
-// CHW
+//Input validation
+float numInput() {
+	float input;
+	while (!(std::cin >> input) || input < 0) {
+		std::cin.clear();
+		std::cin.ignore(1000, '\n');
+		std::cout << "Invaild Input! Please try again: ";
+	}
+	std::cin.ignore(1000, '\n');
+	return input;
+}
 
-int main() {
+std::string stringInput() {
+	std::string input;
+	while (!(std::cin >> input)) {
+		std::cin.clear();
+		std::cin.ignore(1000, '\n');
+		std::cout << "Invaild Input! Please try again: ";
+	}
+	std::cin.ignore(1000, '\n');
+	return input;
+}
+
+void testFunction() {
 	PlaceManager placeManager;
 	ObjectManager objectManager(placeManager);
 	PathManager pathManager(placeManager);
@@ -20,7 +41,7 @@ int main() {
 	placeManager.addPlace(tmp);
 
 	std::cout << "towns: " << std::endl;
-	for (Place *place : placeManager.getPlaceList())
+	for (Place* place : placeManager.getPlaceList())
 		std::cout << place->getName() << " " << place->getId() << std::endl;
 	std::cout << std::endl;
 
@@ -39,7 +60,7 @@ int main() {
 
 	auto NY = placeManager.getPlaceList()[0];
 	auto DC = placeManager.getPlaceList()[1];
-	
+
 
 	std::cout << NY->getName() << ": " << std::endl;
 	for (auto place : NY->getNearby())
@@ -52,7 +73,7 @@ int main() {
 
 
 
-	Person &bob = *objectManager.getPersonList()[0];
+	Person& bob = *objectManager.getPersonList()[0];
 
 	if (pathManager.move(NY->getId(), DC->getId(), bob)) {
 		std::cout << "moved" << std::endl;
@@ -65,6 +86,97 @@ int main() {
 	std::cout << std::endl;
 	placeManager.removePersonFrom(DC->getId(), bob.getId());
 	std::cout << "DC size " << DC->getPeople().size() << std::endl;
+
+}
+
+int main() {
+	
+	if (numInput() != 0) {
+		testFunction();
+		return 0;
+	}
+
+	PlaceManager placeManager;
+	ObjectManager objectManager(placeManager);
+	PathManager pathManager(placeManager);
+
+	std::cout << "Enter the number of places: ";
+
+	int numOfPlace = numInput();
+
+	std::cout << std::endl;
+
+	std::vector<std::string> tmp;
+	tmp.reserve(numOfPlace);
+
+	for (int i = 0; i < numOfPlace; i++)
+		tmp.push_back(stringInput());
+
+	placeManager.addPlace(tmp);
+	bool end = false;
+	do {
+		system("CLS");
+		{
+			int index = 0;
+			for (Place* place : placeManager.getPlaceList()) {
+				std::cout << index++ << ". " << place->getName() << ":" << std::endl;
+				for (auto nearby : place->getNearby()) {
+					std::cout << nearby.first->getName() << ", distance: " << nearby.second << std::endl;
+				}
+				std::cout << std::endl;
+			}
+		}
+
+		std::cout << std::endl;
+		std::cout << "Please select a place: (999 to exit)" << std::endl;
+		int input = numInput();
+		switch (input) {
+			case 999:
+				end = true;
+				break;
+			case 1000:
+				system("CLS");
+				testFunction();
+				break;
+			default:
+				// Choose which place
+				while (input < 0 || input >= placeManager.getPlaceList().size()) {
+					std::cout << "Invalid place: ";
+					input = numInput();
+				}
+				int startInt = placeManager.getPlaceList()[input]->getId();
+				// Choose which place to connect to
+				std::cout << "Connecting to: " << std::endl;
+				{
+					int index = 0;
+					for (Place* place : placeManager.getPlaceList()) {
+						std::cout << index++ << ": " << place->getName() << std::endl;
+					}
+				}
+
+				input = numInput();
+
+				while (input <= 0 || input >= placeManager.getPlaceList().size()) {
+					std::cout << "Invalid place: ";
+					input = numInput();
+				}
+				int endInt = placeManager.getPlaceList()[input]->getId();
+
+				// Ask for distance
+				std::cout << "Distance: ";
+				float distance = numInput();
+
+				if (placeManager.connect(startInt, endInt, distance)) {
+					std::cout << "Connected" << std::endl;
+				}
+				else {
+					std::cout << "Connection failed" << std::endl;
+				}
+
+				break;
+		}
+
+	} while (!end);
 
 	return 0;
 }
